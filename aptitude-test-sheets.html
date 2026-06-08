@@ -1,0 +1,937 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>基本能力テスト / Aptitude Test</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=Noto+Sans+Sinhala:wght@400;700&family=Noto+Sans+Myanmar:wght@400;700&family=Noto+Sans+Devanagari:wght@400;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#F7F8FA;--card:#fff;--text:#1a1a1a;--muted:#6b7280;--bdr:#e5e7eb;--accent:#2563eb;--abg:#eff6ff;--green:#16a34a;--gbg:#f0fdf4;--red:#dc2626;--rbg:#fef2f2;--amber:#d97706;--ambg:#fffbeb}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:"Noto Sans JP",system-ui,sans-serif}
+.screen{display:none;min-height:100vh;flex-direction:column}.screen.active{display:flex}
+
+/* LANG SELECT */
+#lang-screen{background:linear-gradient(135deg,#1e3a8a 0%,#2563eb 100%);align-items:center;justify-content:center;padding:2rem 1rem}
+.lang-card{background:#fff;border-radius:20px;padding:2rem 1.5rem;width:100%;max-width:440px;text-align:center}
+.lang-logo{font-size:40px;margin-bottom:.75rem}
+.lang-title{font-size:20px;font-weight:700;margin-bottom:.25rem}
+.lang-sub{font-size:12px;color:var(--muted);margin-bottom:1.5rem}
+.lang-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:1.25rem}
+.lang-btn{padding:.75rem 1rem;border:2px solid var(--bdr);border-radius:12px;background:var(--bg);cursor:pointer;font-family:inherit;transition:all .15s;text-align:left}
+.lang-btn:hover,.lang-btn.sel{border-color:var(--accent);background:var(--abg)}
+.lang-btn .ln{font-size:15px;font-weight:600;margin-bottom:2px}
+.lang-btn .ls{font-size:11px;color:var(--muted)}
+.start-btn{width:100%;padding:13px;border:none;border-radius:12px;background:var(--accent);color:#fff;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit}
+.start-btn:disabled{opacity:.5;cursor:default}
+
+/* INFO SCREEN */
+#info-screen{background:var(--bg);padding:0}
+.info-hdr{background:linear-gradient(135deg,#1e3a8a,#2563eb);color:#fff;padding:1.5rem 1.25rem 1.25rem;text-align:center}
+.info-hdr h1{font-size:18px;font-weight:700;margin-bottom:.25rem}
+.info-hdr p{font-size:12px;opacity:.8}
+.info-body{flex:1;padding:1.25rem;max-width:500px;margin:0 auto;width:100%}
+.info-row{display:flex;align-items:center;gap:10px;background:#fff;border:1px solid var(--bdr);border-radius:12px;padding:.875rem 1rem;margin-bottom:.625rem}
+.info-icon{font-size:22px;flex-shrink:0}
+.info-txt .it{font-size:13px;font-weight:600}
+.info-txt .is{font-size:12px;color:var(--muted);margin-top:2px}
+.fg{margin-bottom:.875rem}
+.fg label{display:block;font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px}
+.fg input{width:100%;padding:10px 12px;border:1.5px solid var(--bdr);border-radius:10px;font-size:14px;background:#fff;font-family:inherit;outline:none}
+.fg input:focus{border-color:var(--accent)}
+.go-btn{width:100%;padding:13px;border:none;border-radius:12px;background:var(--accent);color:#fff;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;margin-top:.25rem}
+.err-msg{background:var(--rbg);color:var(--red);border-radius:8px;padding:7px 12px;font-size:12px;margin-bottom:.875rem;display:none}
+.err-msg.on{display:block}
+
+/* TEST SCREEN */
+#test-screen{background:var(--bg)}
+.t-hdr{background:#fff;border-bottom:1px solid var(--bdr);padding:.75rem 1.25rem;flex-shrink:0;position:sticky;top:0;z-index:10}
+.t-hdr-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
+.t-title{font-size:13px;font-weight:600}
+.t-timer{font-family:"DM Mono",monospace;font-size:14px;font-weight:600;color:var(--accent)}
+.t-timer.warn{color:var(--red)}
+.t-prg{height:4px;background:var(--bdr);border-radius:99px;overflow:hidden}
+.t-prg-fill{height:100%;background:var(--accent);border-radius:99px;transition:width .3s}
+.t-body{flex:1;overflow-y:auto;padding:1rem 1rem 5rem;max-width:600px;margin:0 auto;width:100%}
+.section-hdr{background:linear-gradient(135deg,#1e3a8a,#2563eb);color:#fff;border-radius:14px;padding:1rem 1.25rem;margin-bottom:1rem}
+.sec-num{font-size:11px;opacity:.8;font-family:"DM Mono",monospace;letter-spacing:.06em;margin-bottom:4px}
+.sec-title{font-size:15px;font-weight:700;margin-bottom:4px}
+.sec-sub{font-size:12px;opacity:.85;line-height:1.55}
+.q-card{background:#fff;border:1.5px solid var(--bdr);border-radius:12px;padding:1rem;margin-bottom:.75rem}
+.q-card.answered{border-color:#93c5fd}
+.q-num-lbl{font-size:10px;font-weight:600;color:var(--muted);font-family:"DM Mono",monospace;letter-spacing:.05em;margin-bottom:6px}
+.q-expr{font-size:17px;font-weight:600;margin-bottom:.75rem;letter-spacing:.03em}
+.q-input{width:100%;padding:9px 12px;border:1.5px solid var(--bdr);border-radius:9px;font-size:16px;font-family:"DM Mono",monospace;font-weight:600;outline:none;text-align:center}
+.q-input:focus{border-color:var(--accent)}
+.q-input.ok{border-color:var(--green);background:var(--gbg)}
+.q-input.ng{border-color:var(--red);background:var(--rbg)}
+/* Symbol table */
+.sym-wrap{margin-bottom:.75rem}
+.sym-tbl{border-collapse:collapse;width:100%;font-size:13px;font-family:"DM Mono",monospace;font-weight:600}
+.sym-tbl td{border:1.5px solid #374151;padding:5px 8px;text-align:center;background:#f8fafc}
+.sym-tbl .head-row td{background:#1e3a8a;color:#fff}
+.sym-q{font-size:15px;font-weight:700;margin-bottom:.5rem;font-family:"DM Mono",monospace;letter-spacing:.08em}
+.choices{display:flex;flex-direction:column;gap:7px}
+.choice{display:flex;align-items:center;gap:9px;padding:.6rem .875rem;border:1.5px solid var(--bdr);border-radius:9px;cursor:pointer;font-size:13px;font-family:"DM Mono",monospace;font-weight:600;background:#fff;transition:all .14s}
+.choice:hover{border-color:var(--accent);background:var(--abg)}
+.choice.sel{border-color:var(--accent);background:var(--abg)}
+.choice-dot{width:16px;height:16px;border-radius:50%;border:2px solid var(--bdr);flex-shrink:0;transition:all .14s}
+.choice.sel .choice-dot{border-color:var(--accent);background:var(--accent)}
+/* SVG shapes */
+.shape-wrap{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:.75rem;overflow-x:auto;padding-bottom:4px}
+.shape-item{text-align:center;flex-shrink:0}
+.shape-lbl{font-size:10px;color:var(--muted);font-family:"DM Mono",monospace;margin-top:3px;text-align:center}
+.shape-divider{font-size:20px;color:var(--muted);font-weight:300;align-self:center}
+/* Block number */
+.block-img{width:100%;max-width:260px;margin:0 auto .75rem;display:block;background:#f8fafc;border-radius:8px;padding:.5rem}
+
+/* RESULT */
+#result-screen{background:var(--bg)}
+.r-hdr{background:linear-gradient(135deg,#1e3a8a,#2563eb);color:#fff;padding:2rem 1.25rem 1.5rem;text-align:center}
+.r-score-ring{width:110px;height:110px;margin:0 auto .75rem;position:relative}
+.r-score-ring svg{width:110px;height:110px;transform:rotate(-90deg)}
+.r-ring-txt{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.r-pct{font-size:28px;font-weight:700;font-family:"DM Mono",monospace}
+.r-pts{font-size:12px;opacity:.8;font-family:"DM Mono",monospace}
+.r-msg{font-size:17px;font-weight:700;margin-bottom:.25rem}
+.r-sub{font-size:12px;opacity:.8}
+.r-body{padding:1.25rem;max-width:500px;margin:0 auto;width:100%}
+.r-card{background:#fff;border:1px solid var(--bdr);border-radius:13px;padding:1rem;margin-bottom:.75rem}
+.r-card-title{font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:.75rem}
+.r-stat{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:.75rem}
+.r-stat-box{background:var(--bg);border-radius:9px;padding:.625rem;text-align:center}
+.r-stat-n{font-size:20px;font-weight:700;font-family:"DM Mono",monospace}
+.r-stat-l{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-top:2px}
+.r-row{display:flex;justify-content:space-between;align-items:center;padding:.5rem 0;border-bottom:1px solid var(--bdr);font-size:13px}
+.r-row:last-child{border:none}
+.retry-btn{width:100%;padding:13px;border:none;border-radius:12px;background:var(--accent);color:#fff;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;margin-bottom:.625rem}
+.back-btn{width:100%;padding:11px;border:1.5px solid var(--bdr);border-radius:12px;background:#fff;color:var(--text);font-size:14px;font-weight:500;cursor:pointer;font-family:inherit}
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(60px);background:#1e3a8a;color:#fff;padding:8px 18px;border-radius:99px;font-size:13px;z-index:9999;transition:transform .3s;pointer-events:none;white-space:nowrap}
+.toast.on{transform:translateX(-50%) translateY(0)}
+
+.t-tab-btn{white-space:nowrap;padding:5px 13px;border-radius:8px;border:none;background:transparent;font-size:11px;font-weight:500;cursor:pointer;color:var(--muted);font-family:inherit}
+.t-tab-btn.active{background:#fff;color:var(--text);box-shadow:0 1px 3px rgba(0,0,0,.08)}
+.t-tab-panel{display:none}.t-tab-panel.active{display:block}
+</style>
+</head>
+<body>
+
+<!-- LANGUAGE SELECT -->
+<div id="lang-screen" class="screen active">
+ <div class="lang-card">
+  <div class="lang-logo">📋</div>
+  <div class="lang-title">基本能力テスト</div>
+  <div class="lang-sub">Aptitude Test / 適性検査</div>
+  <div class="lang-grid" id="lang-grid"></div>
+  <button class="start-btn" id="lang-next" onclick="goInfo()" disabled>次へ / Next →</button>
+   <button onclick="ss('teacher-login-screen')" style="width:100%;margin-top:.625rem;padding:10px;border:1.5px solid #bfdbfe;border-radius:10px;background:#eff6ff;color:#1e40af;font-size:13px;font-weight:500;cursor:pointer;font-family:inherit">👨‍🏫 Teacher Login / 管理者</button>
+ </div>
+</div>
+
+<!-- INFO -->
+<div id="info-screen" class="screen">
+ <div class="info-hdr">
+  <h1 id="info-title">基本能力テスト</h1>
+  <p id="info-sub">試験を開始する前に名前を入力してください</p>
+ </div>
+ <div class="info-body">
+  <div class="info-row"><div class="info-icon">📝</div><div class="info-txt"><div class="it" id="s1-info">設問1: 算数 (30問)</div><div class="is" id="s1-sub">基本的な計算問題</div></div></div>
+  <div class="info-row"><div class="info-icon">🔄</div><div class="info-txt"><div class="it" id="s2-info">設問2: 置き換え (10問)</div><div class="is" id="s2-sub">数字を記号に置き換える</div></div></div>
+  <div class="info-row"><div class="info-icon">🔷</div><div class="info-txt"><div class="it" id="s3-info">設問3: 図形把握 (6問)</div><div class="is" id="s3-sub">回転した図形を選ぶ</div></div></div>
+  <div class="info-row"><div class="info-icon">🧱</div><div class="info-txt"><div class="it" id="s4-info">設問4: ブロック数 (4問)</div><div class="is" id="s4-sub">立体のブロックを数える</div></div></div>
+  <div class="info-row" style="background:var(--ambg);border-color:#fcd34d"><div class="info-icon">⏱️</div><div class="info-txt"><div class="it" id="time-info">制限時間: 20分</div><div class="is" id="time-sub">時間内に全問回答してください</div></div></div>
+  <div id="info-err" class="err-msg"></div>
+  <div class="fg"><label id="name-lbl">お名前 / Name</label><input type="text" id="cand-name" placeholder="名前を入力してください"></div>
+  <button class="go-btn" id="start-btn" onclick="startTest()">テスト開始 / Start Test</button>
+ </div>
+</div>
+
+<!-- TEST -->
+<div id="test-screen" class="screen">
+ <div class="t-hdr">
+  <div class="t-hdr-top">
+   <span class="t-title" id="t-title">基本能力テスト</span>
+   <span class="t-timer" id="timer">20:00</span>
+  </div>
+  <div class="t-prg"><div class="t-prg-fill" id="t-prg-fill" style="width:0%"></div></div>
+ </div>
+ <div class="t-body" id="t-body"></div>
+</div>
+
+<!-- RESULT -->
+<div id="result-screen" class="screen">
+ <div class="r-hdr">
+  <div class="r-score-ring">
+   <svg viewBox="0 0 110 110"><circle cx="55" cy="55" r="46" fill="none" stroke="rgba(255,255,255,.25)" stroke-width="9"/><circle id="r-arc" cx="55" cy="55" r="46" fill="none" stroke="#fff" stroke-width="9" stroke-linecap="round" stroke-dasharray="289" stroke-dashoffset="289"/></svg>
+   <div class="r-ring-txt"><span class="r-pct" id="r-pct">0%</span><span class="r-pts" id="r-pts">0/50</span></div>
+  </div>
+  <div class="r-msg" id="r-msg">結果</div>
+  <div class="r-sub" id="r-sub"></div>
+ </div>
+ <div class="r-body">
+  <div class="r-card">
+   <div class="r-card-title" id="r-summary-title">セクション別スコア</div>
+   <div id="r-sections"></div>
+  </div>
+  <div class="r-card">
+   <div class="r-card-title" id="r-detail-title">受験者情報</div>
+   <div class="r-row"><span id="r-name-lbl">氏名</span><span id="r-name-val"></span></div>
+   <div class="r-row"><span id="r-date-lbl">受験日時</span><span id="r-date-val"></span></div>
+   <div class="r-row"><span id="r-time-lbl">所要時間</span><span id="r-time-val"></span></div>
+  </div>
+  <button class="retry-btn" onclick="goLang()" id="retry-btn">もう一度 / Try Again</button>
+ </div>
+</div>
+
+
+<!-- TEACHER LOGIN -->
+<div id="teacher-login-screen" class="screen">
+ <div style="background:linear-gradient(135deg,#1e3a8a,#2563eb);min-height:100vh;display:flex;align-items:center;justify-content:center;padding:1rem">
+  <div style="background:#fff;border-radius:20px;padding:2rem 1.5rem;width:100%;max-width:400px">
+   <div style="text-align:center;margin-bottom:1.5rem">
+    <div style="font-size:36px;margin-bottom:.5rem">👨‍🏫</div>
+    <div style="font-size:18px;font-weight:700">Teacher Dashboard</div>
+    <div style="font-size:12px;color:var(--muted);margin-top:4px">管理者ログイン</div>
+   </div>
+   <div class="fg"><label>🏢 Company Name</label><input type="text" id="t-co-input" placeholder="e.g. 誠榮技工"></div>
+   <div class="fg"><label>Password / パスワード</label><input type="password" id="t-pw-input" placeholder="••••••••" onkeyup="if(event.key==='Enter')tLogin()"></div>
+   <div id="t-login-err" class="err-msg"></div>
+   <button onclick="tLogin()" style="width:100%;padding:12px;border:none;border-radius:10px;background:#1e3a8a;color:#fff;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit">Login →</button>
+   <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:9px;padding:.75rem;margin-top:.875rem;font-size:12px;color:#1e40af;line-height:1.6">
+    初めて？ / First time?<br>Default password: <code style="background:#dbeafe;padding:1px 5px;border-radius:4px">teacher2024</code><br>
+    Company name must match exactly.
+   </div>
+   <button onclick="ss('lang-screen')" style="width:100%;margin-top:.625rem;padding:10px;border:1.5px solid var(--bdr);border-radius:10px;background:#fff;font-size:13px;cursor:pointer;font-family:inherit">← Back to Test</button>
+  </div>
+ </div>
+</div>
+
+<!-- TEACHER DASHBOARD -->
+<div id="teacher-screen" class="screen">
+ <div style="background:#1e3a8a;color:#fff;padding:.875rem 1.25rem;flex-shrink:0">
+  <div style="display:flex;align-items:center;justify-content:space-between">
+   <div>
+    <div style="font-size:10px;opacity:.7;font-family:'DM Mono',monospace;letter-spacing:.08em">TEACHER DASHBOARD</div>
+    <div style="font-size:15px;font-weight:700;margin-top:2px" id="t-co-display"></div>
+   </div>
+   <div style="display:flex;gap:6px">
+    <button onclick="openEmailModal()" style="background:rgba(255,255,255,.15);border:none;color:#fff;padding:5px 11px;border-radius:6px;font-size:11px;cursor:pointer">📋 Details</button>
+    <button onclick="tLogout()" style="background:rgba(255,255,255,.15);border:none;color:#fff;padding:5px 11px;border-radius:6px;font-size:11px;cursor:pointer">← Out</button>
+   </div>
+  </div>
+ </div>
+ <!-- Tabs -->
+ <div style="display:flex;gap:3px;padding:.55rem .875rem;background:#f8fafc;border-bottom:1px solid var(--bdr);overflow-x:auto;flex-shrink:0">
+  <button class="t-tab-btn active" onclick="tTab('overview')" id="ttab-overview">📊 Overview</button>
+  <button class="t-tab-btn" onclick="tTab('students')" id="ttab-students">👥 Students</button>
+  <button class="t-tab-btn" onclick="tTab('settings')" id="ttab-settings">⚙️ Settings</button>
+ </div>
+ <div style="flex:1;overflow-y:auto;padding:.875rem;max-width:600px;margin:0 auto;width:100%">
+  <!-- OVERVIEW -->
+  <div id="tp-overview">
+   <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:1rem">
+    <div style="background:#fff;border:1px solid var(--bdr);border-radius:12px;padding:.875rem;text-align:center">
+     <div style="font-size:24px;font-weight:700;font-family:'DM Mono',monospace;color:#2563eb" id="ov-total">0</div>
+     <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-top:3px">Students</div>
+    </div>
+    <div style="background:#fff;border:1px solid var(--bdr);border-radius:12px;padding:.875rem;text-align:center">
+     <div style="font-size:24px;font-weight:700;font-family:'DM Mono',monospace;color:#16a34a" id="ov-pass">0</div>
+     <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-top:3px">Pass</div>
+    </div>
+    <div style="background:#fff;border:1px solid var(--bdr);border-radius:12px;padding:.875rem;text-align:center">
+     <div style="font-size:24px;font-weight:700;font-family:'DM Mono',monospace;color:#dc2626" id="ov-fail">0</div>
+     <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-top:3px">Fail</div>
+    </div>
+   </div>
+   <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:1rem">
+    <div style="background:#fff;border:1px solid var(--bdr);border-radius:12px;padding:.875rem;text-align:center">
+     <div style="font-size:22px;font-weight:700;font-family:'DM Mono',monospace" id="ov-avg">-</div>
+     <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-top:3px">Average</div>
+    </div>
+    <div style="background:#fff;border:1px solid var(--bdr);border-radius:12px;padding:.875rem;text-align:center">
+     <div style="font-size:22px;font-weight:700;font-family:'DM Mono',monospace" id="ov-high">-</div>
+     <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-top:3px">Highest</div>
+    </div>
+   </div>
+   <!-- Section averages -->
+   <div style="background:#fff;border:1px solid var(--bdr);border-radius:12px;padding:1rem;margin-bottom:1rem">
+    <div style="font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:.75rem">Section Averages</div>
+    <div id="sec-avgs"></div>
+   </div>
+   <div style="background:#fff;border:1px solid var(--bdr);border-radius:12px;padding:1rem">
+    <div style="font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:.75rem">Recent Students</div>
+    <div id="ov-recent"><p style="color:var(--muted);font-size:13px">No students yet</p></div>
+   </div>
+  </div>
+  <!-- STUDENTS -->
+  <div id="tp-students" style="display:none">
+   <div style="background:#fff;border:1px solid var(--bdr);border-radius:12px;padding:1rem">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.875rem">
+     <div style="font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.06em">All Students</div>
+     <div style="display:flex;gap:6px">
+      <button onclick="expCSV()" style="padding:5px 10px;border-radius:7px;border:1px solid #2563eb;background:#eff6ff;color:#1e40af;font-size:11px;cursor:pointer">⬇️ CSV</button>
+      <button onclick="clearAll()" style="padding:5px 10px;border-radius:7px;border:1px solid #dc2626;background:#fef2f2;color:#991b1b;font-size:11px;cursor:pointer">🗑 Clear</button>
+     </div>
+    </div>
+    <div id="all-students"><p style="color:var(--muted);font-size:13px">No students yet</p></div>
+   </div>
+  </div>
+  <!-- SETTINGS -->
+  <div id="tp-settings" style="display:none">
+   <div style="background:#fff;border:1px solid var(--bdr);border-radius:12px;padding:1rem;margin-bottom:.75rem">
+    <div style="font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:.875rem">Security</div>
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:.625rem 0;border-bottom:1px solid var(--bdr)">
+     <div><div style="font-size:13px;font-weight:500">Teacher Password</div><div style="font-size:11px;color:var(--muted);margin-top:2px">This company only</div></div>
+     <div style="display:flex;gap:5px"><input type="password" id="new-pw" placeholder="New password" style="padding:6px 9px;border:1px solid var(--bdr);border-radius:7px;font-size:12px;background:var(--bg);outline:none;width:120px"><button onclick="changePw()" style="padding:5px 10px;border-radius:7px;border:1px solid #16a34a;background:#f0fdf4;color:#15803d;font-size:11px;cursor:pointer">Save</button></div>
+    </div>
+   </div>
+   <div style="background:#fff;border:1px solid var(--bdr);border-radius:12px;padding:1rem">
+    <div style="font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:.875rem">Share Link</div>
+    <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:9px;padding:.75rem;margin-bottom:.75rem">
+     <div style="font-size:11px;font-weight:600;color:#1e40af;margin-bottom:4px">Test URL:</div>
+     <div id="share-url" style="font-family:'DM Mono',monospace;font-size:11px;color:#1d4ed8;word-break:break-all"></div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px">
+     <button onclick="cpUrl()" style="padding:8px;border-radius:8px;border:1px solid #2563eb;background:#eff6ff;color:#1e40af;font-size:11px;cursor:pointer">📋 Copy</button>
+     <button onclick="shareWA()" style="padding:8px;border-radius:8px;border:1px solid #16a34a;background:#f0fdf4;color:#15803d;font-size:11px;cursor:pointer">💬 WhatsApp</button>
+     <button onclick="shareTG()" style="padding:8px;border-radius:8px;border:1px solid #7c3aed;background:#f5f3ff;color:#6d28d9;font-size:11px;cursor:pointer">✈️ Telegram</button>
+    </div>
+   </div>
+  </div>
+ </div>
+</div>
+
+<!-- DETAIL MODAL -->
+<div id="detail-modal" style="position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:9999;display:none;align-items:center;justify-content:center;padding:.875rem">
+ <div style="background:#fff;border-radius:18px;padding:1.5rem;width:100%;max-width:480px;max-height:80vh;overflow-y:auto">
+  <button onclick="closeEmailModal()" style="float:right;background:none;border:none;font-size:20px;cursor:pointer;color:var(--muted);margin-top:-4px">✕</button>
+  <div style="font-size:16px;font-weight:700;margin-bottom:.875rem" id="modal-title">📋 Student Details</div>
+  <table style="width:100%;border-collapse:collapse" id="detail-table">
+   <thead><tr>
+    <th style="text-align:left;font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase;padding:5px 0;border-bottom:1px solid var(--bdr)">Name</th>
+    <th style="text-align:center;font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase;padding:5px 0;border-bottom:1px solid var(--bdr)">Total</th>
+    <th style="text-align:center;font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase;padding:5px 0;border-bottom:1px solid var(--bdr)">算数</th>
+    <th style="text-align:center;font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase;padding:5px 0;border-bottom:1px solid var(--bdr)">置換</th>
+    <th style="text-align:center;font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase;padding:5px 0;border-bottom:1px solid var(--bdr)">図形</th>
+    <th style="text-align:center;font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase;padding:5px 0;border-bottom:1px solid var(--bdr)">ブロック</th>
+   </tr></thead>
+   <tbody id="detail-tbody"></tbody>
+  </table>
+  <div style="margin-top:.875rem;display:flex;gap:7px">
+   <button onclick="expCSV()" style="padding:6px 12px;border-radius:7px;border:1px solid #2563eb;background:#eff6ff;color:#1e40af;font-size:11px;cursor:pointer">⬇️ CSV Export</button>
+   <button onclick="closeEmailModal()" style="padding:6px 12px;border-radius:7px;border:1px solid var(--bdr);background:#fff;font-size:11px;cursor:pointer">Close</button>
+  </div>
+ </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const LANGS = [
+ {k:'ja', name:'日本語', nat:'Japanese'},
+ {k:'vi', name:'Tiếng Việt', nat:'Vietnamese'},
+ {k:'si', name:'සිංහල', nat:'Sinhala'},
+ {k:'my', name:'မြန်မာ', nat:'Myanmar'},
+ {k:'en', name:'English', nat:'English'},
+ {k:'id', name:'Indonesia', nat:'Indonesian'},
+ {k:'tl', name:'Filipino', nat:'Tagalog'},
+ {k:'ne', name:'नेपाली', nat:'Nepali'},
+];
+
+const UI = {
+ ja:{title:'基本能力テスト',sub:'試験開始前に名前を入力',s1:'設問1: 算数 (30問)',s1s:'基本的な計算問題',s2:'設問2: 置き換え (10問)',s2s:'数字を記号に置き換える',s3:'設問3: 図形把握 (6問)',s3s:'回転した図形を選ぶ',s4:'設問4: ブロック数 (4問)',s4s:'立体のブロックを数える',tm:'制限時間: 20分',tms:'時間内に全問回答してください',nl:'お名前',start:'テスト開始',q1h:'設問1. 次の計算をしましょう。（算数）',q1s:'基本算数の知識が理解できているか。',q2h:'設問2. 次の数字を手引によって置き換えた場合、正しいものを答えましょう。',q2s:'面倒な作業の繰り返しを、正確かつ迅速にできるか。',q3h:'設問3. 次の左の図と同じ形で、向きだけかえたものを、1〜5から選びましょう。',q3s:'回転させた形を想像する力が必要となる。',q4h:'設問4. 次のブロックの数を答えましょう。',q4s:'空間把握能力があるか。',guide:'〈手引〉',ex:'（例）',correct:'正解',wrong:'不正解',rsTitle:'セクション別スコア',rdTitle:'受験者情報',rname:'氏名',rdate:'受験日時',rtime:'所要時間',retry:'もう一度',pass:'合格 / Pass',fail:'不合格 / Fail',nameerr:'名前を入力してください'},
+ vi:{title:'Bài kiểm tra năng lực cơ bản',sub:'Nhập tên trước khi bắt đầu',s1:'Câu 1: Toán học (30 câu)',s1s:'Kiểm tra kiến thức toán cơ bản',s2:'Câu 2: Thay thế ký hiệu (10 câu)',s2s:'Thay thế số bằng ký hiệu',s3:'Câu 3: Nhận dạng hình (6 câu)',s3s:'Chọn hình đã xoay',s4:'Câu 4: Đếm khối (4 câu)',s4s:'Đếm số khối 3D',tm:'Thời gian: 20 phút',tms:'Trả lời tất cả trong thời gian cho phép',nl:'Họ và tên',start:'Bắt đầu kiểm tra',q1h:'Câu 1. Hãy tính các phép tính sau. (Toán số học)',q1s:'Kiểm tra kiến thức toán cơ bản.',q2h:'Câu 2. Thay thế các số bằng ký hiệu theo bảng hướng dẫn.',q2s:'Kiểm tra khả năng thực hiện công việc lặp đi lặp lại chính xác.',q3h:'Câu 3. Chọn từ 1~5 hình có cùng hình dạng, chỉ thay đổi hướng.',q3s:'Kiểm tra khả năng tưởng tượng hình khi xoay.',q4h:'Câu 4. Hãy đếm số khối trong hình.',q4s:'Kiểm tra khả năng nhận thức không gian.',guide:'〈Bảng hướng dẫn〉',ex:'（Ví dụ）',correct:'Đúng',wrong:'Sai',rsTitle:'Điểm theo phần',rdTitle:'Thông tin thí sinh',rname:'Họ tên',rdate:'Ngày thi',rtime:'Thời gian',retry:'Thử lại',pass:'Đạt',fail:'Không đạt',nameerr:'Vui lòng nhập tên của bạn'},
+ si:{title:'මූලික හැකියා පරීක්ෂණය',sub:'ආරම්භ කිරීමට පෙර නම ඇතුළු කරන්න',s1:'ප්‍රශ්නය 1: ගණිතය (30)',s1s:'මූලික ගණිත දැනුම',s2:'ප්‍රශ්නය 2: ස්ථාන මාරු (10)',s2s:'සංඛ්‍යා සංකේත වෙත ස්ථාන මාරු කිරීම',s3:'ප්‍රශ්නය 3: හැඩ හඳුනාගැනීම (6)',s3s:'භ්‍රමණය කළ හැඩය තෝරන්න',s4:'ප්‍රශ්නය 4: කුට්ටි ගණන් කිරීම (4)',s4s:'3D කුට්ටි ගණන් කිරීම',tm:'කාල සීමාව: මිනිත්තු 20',tms:'නියමිත කාලය තුළ සියලු ප්‍රශ්නවලට පිළිතුරු දෙන්න',nl:'නම',start:'පරීක්ෂණය ආරම්භ කරන්න',q1h:'ප්‍රශ්නය 1. පහත ගණනය කරන්න. (අංකගණිතය)',q1s:'මූලික ගණිත දැනුම තේරුම් ගත හැකිද?',q2h:'ප්‍රශ්නය 2. මාර්ගෝපදේශය අනුව සංඛ්‍යා ස්ථාන මාරු කරන්න.',q2s:'නිවැරදිව හා ඉක්මනින් කාර්ය සිදු කළ හැකිද?',q3h:'ප්‍රශ්නය 3. 1~5 අතරින් වම් රූපය හා සමාන නමුත් දිශාව වෙනස් හැඩය තෝරන්න.',q3s:'භ්‍රමණය කරන ලද හැඩය සිතාගැනීමේ හැකියාව.',q4h:'ප්‍රශ්නය 4. පහත කුට්ටි ගණන ඇසුරු කරන්න.',q4s:'අවකාශ අවබෝධ හැකියාව ඇත්ද?',guide:'〈මාර්ගෝපදේශය〉',ex:'（උදාහරණය）',correct:'නිවැරදි',wrong:'වැරදි',rsTitle:'කොටස් වාර්තාව',rdTitle:'අයදුම්කරු තොරතුරු',rname:'නම',rdate:'දිනය',rtime:'කාලය',retry:'නැවත',pass:'සමත්',fail:'නොසමත්',nameerr:'කරුණාකර නම ඇතුළු කරන්න'},
+ my:{title:'အခြေခံစွမ်းရည်စစ်ဆေးမှု',sub:'စတင်မတိုင်မီ အမည်ထည့်ပါ',s1:'မေးခွန်း ၁: ဂဏန်းသင်္ချာ (၃၀)',s1s:'အခြေခံဂဏန်းသင်္ချာ',s2:'မေးခွန်း ၂: အစားထိုး (၁၀)',s2s:'ဂဏန်းကို သင်္ကေတဖြင့် အစားထိုး',s3:'မေးခွန်း ၃: ပုံသဏ္ဌာန် (၆)',s3s:'လှည့်ထားသောပုံကို ရွေးပါ',s4:'မေးခွန်း ၄: ဘလောက်ရေတွက် (၄)',s4s:'3D ဘလောက်များ ရေတွက်',tm:'အချိန်ကန့်သတ်: ၂၀ မိနစ်',tms:'သတ်မှတ်အချိန်အတွင်း မေးခွန်းများအားလုံး ဖြေပါ',nl:'အမည်',start:'စစ်ဆေးမှုစတင်',q1h:'မေးခွန်း ၁။ အောက်ပါတွက်ချက်မှုများကို ဖြေဆိုပါ။',q1s:'အခြေခံဂဏန်းသင်္ချာ အသိပညာ စစ်ဆေးသည်။',q2h:'မေးခွန်း ၂။ လမ်းညွှန်ချက်အတိုင်း ဂဏန်းများကို အစားထိုးပါ။',q2s:'တိကျစွာ လျင်မြန်စွာ လုပ်နိုင်သောစွမ်းရည် စစ်ဆေးသည်။',q3h:'မေးခွန်း ၃။ ဘယ်ဘက်ပုံနှင့် တူညီသောပုံသဏ္ဌာန် ၁~၅ မှ ရွေးချယ်ပါ။',q3s:'လှည့်ထားသောပုံကို စိတ်ကူးနိုင်သောစွမ်းရည် စစ်ဆေးသည်။',q4h:'မေးခွန်း ၄။ အောက်ပါဘလောက်တုံးများ၏ အရေအတွက်ကို ဖြေဆိုပါ။',q4s:'နေရာဒေသသိမြင်မှုစွမ်းရည် စစ်ဆေးသည်။',guide:'〈လမ်းညွှန်ချက်〉',ex:'（ဥပမာ）',correct:'မှန်သည်',wrong:'မှားသည်',rsTitle:'အပိုင်းအလိုက်ရမှတ်',rdTitle:'ဖြေဆိုသူ အချက်အလက်',rname:'အမည်',rdate:'နေ့ရက်',rtime:'ကြာချိန်',retry:'ထပ်ကြိုး',pass:'အောင်',fail:'ကျ',nameerr:'အမည်ထည့်ပါ'},
+ en:{title:'Basic Aptitude Test',sub:'Enter your name before starting',s1:'Q1: Arithmetic (30 questions)',s1s:'Basic arithmetic knowledge',s2:'Q2: Symbol Substitution (10 questions)',s2s:'Replace numbers with symbols',s3:'Q3: Shape Recognition (6 questions)',s3s:'Select rotated shapes',s4:'Q4: Block Counting (4 questions)',s4s:'Count 3D blocks',tm:'Time limit: 20 minutes',tms:'Answer all questions within the time limit',nl:'Name',start:'Start Test',q1h:'Q1. Calculate the following. (Arithmetic)',q1s:'Checks basic arithmetic knowledge.',q2h:'Q2. Replace the numbers with symbols using the guide.',q2s:'Checks ability to work accurately and quickly.',q3h:'Q3. Choose from 1~5 the figure with the same shape but different direction.',q3s:'Checks ability to imagine rotated shapes.',q4h:'Q4. Count the number of blocks.',q4s:'Checks spatial perception ability.',guide:'〈Guide〉',ex:'（Example）',correct:'Correct',wrong:'Wrong',rsTitle:'Score by Section',rdTitle:'Candidate Info',rname:'Name',rdate:'Date',rtime:'Time',retry:'Try Again',pass:'Pass',fail:'Fail',nameerr:'Please enter your name'},
+ id:{title:'Tes Kemampuan Dasar',sub:'Masukkan nama sebelum mulai',s1:'Soal 1: Aritmatika (30 soal)',s1s:'Pengetahuan aritmatika dasar',s2:'Soal 2: Penggantian Simbol (10 soal)',s2s:'Ganti angka dengan simbol',s3:'Soal 3: Pengenalan Bentuk (6 soal)',s3s:'Pilih bentuk yang diputar',s4:'Soal 4: Menghitung Balok (4 soal)',s4s:'Hitung balok 3D',tm:'Batas waktu: 20 menit',tms:'Jawab semua soal dalam waktu yang ditentukan',nl:'Nama',start:'Mulai Tes',q1h:'Soal 1. Hitunglah soal-soal berikut. (Aritmatika)',q1s:'Mengecek pemahaman aritmatika dasar.',q2h:'Soal 2. Ganti angka-angka dengan simbol sesuai panduan.',q2s:'Mengecek kemampuan bekerja akurat dan cepat.',q3h:'Soal 3. Pilih dari 1~5 gambar yang memiliki bentuk sama tapi arah berbeda.',q3s:'Mengecek kemampuan membayangkan bentuk yang diputar.',q4h:'Soal 4. Hitunglah jumlah balok berikut.',q4s:'Mengecek kemampuan persepsi ruang.',guide:'〈Panduan〉',ex:'（Contoh）',correct:'Benar',wrong:'Salah',rsTitle:'Skor per Bagian',rdTitle:'Info Peserta',rname:'Nama',rdate:'Tanggal',rtime:'Waktu',retry:'Coba Lagi',pass:'Lulus',fail:'Tidak Lulus',nameerr:'Masukkan nama Anda'},
+ tl:{title:'Pangunahing Aptitude Test',sub:'Ilagay ang pangalan bago magsimula',s1:'T1: Aritmetika (30 tanong)',s1s:'Pangunahing kaalaman sa aritmetika',s2:'T2: Pagpapalit ng Simbolo (10 tanong)',s2s:'Palitan ang mga numero ng simbolo',s3:'T3: Pagkilala ng Hugis (6 tanong)',s3s:'Pumili ng pinabalikwas na hugis',s4:'T4: Pagbibilang ng Bloke (4 tanong)',s4s:'Bilangin ang 3D na mga bloke',tm:'Limitasyon ng oras: 20 minuto',tms:'Sagutin lahat ng tanong sa loob ng oras',nl:'Pangalan',start:'Simulan ang Test',q1h:'T1. Kalkulahin ang mga sumusunod. (Aritmetika)',q1s:'Sinusuri ang pangunahing kaalaman sa aritmetika.',q2h:'T2. Palitan ang mga numero ng simbolo ayon sa gabay.',q2s:'Sinusuri ang kakayahang magtrabaho nang tama at mabilis.',q3h:'T3. Pumili mula 1~5 ng hugis na katulad ng kaliwa ngunit ibang direksyon.',q3s:'Sinusuri ang kakayahang mag-isip ng pinabalikwas na hugis.',q4h:'T4. Bilangin ang bilang ng mga bloke.',q4s:'Sinusuri ang kakayahan sa spatial perception.',guide:'〈Gabay〉',ex:'（Halimbawa）',correct:'Tama',wrong:'Mali',rsTitle:'Iskor sa bawat Seksyon',rdTitle:'Impormasyon ng Kandidato',rname:'Pangalan',rdate:'Petsa',rtime:'Oras',retry:'Subukan Muli',pass:'Pumasa',fail:'Bumagsak',nameerr:'Mangyaring ilagay ang iyong pangalan'},
+ ne:{title:'आधारभूत योग्यता परीक्षा',sub:'सुरु गर्नु अघि नाम लेख्नुहोस्',s1:'प्रश्न १: गणित (३० प्रश्न)',s1s:'आधारभूत गणित ज्ञान',s2:'प्रश्न २: प्रतीक प्रतिस्थापन (१० प्रश्न)',s2s:'संख्यालाई प्रतीकले बदल्नुहोस्',s3:'प्रश्न ३: आकार पहिचान (६ प्रश्न)',s3s:'घुमाइएको आकार छान्नुहोस्',s4:'प्रश्न ४: ब्लक गणना (४ प्रश्न)',s4s:'3D ब्लकहरू गन्नुहोस्',tm:'समय सीमा: २० मिनेट',tms:'निर्धारित समयभित्र सबै प्रश्नको जवाफ दिनुहोस्',nl:'नाम',start:'परीक्षा सुरु गर्नुहोस्',q1h:'प्रश्न १. निम्नलिखित गणनाहरू गर्नुहोस्। (अंकगणित)',q1s:'आधारभूत गणितको ज्ञान छ कि छैन जाँच गर्दछ।',q2h:'प्रश्न २. मार्गनिर्देशिकाअनुसार संख्याहरूलाई प्रतीकले बदल्नुहोस्।',q2s:'सही र छिटो काम गर्न सक्छ कि सक्दैन जाँच गर्दछ।',q3h:'प्रश्न ३. बायाँ आकृतिसँग समान तर दिशा फरक आकृति १~५ बाट छान्नुहोस्।',q3s:'घुमाइएको आकृति कल्पना गर्ने क्षमता जाँच गर्दछ।',q4h:'प्रश्न ४. तलका ब्लकहरूको संख्या गन्नुहोस्।',q4s:'स्थान बोध क्षमता छ कि छैन जाँच गर्दछ।',guide:'〈निर्देशिका〉',ex:'（उदाहरण）',correct:'सही',wrong:'गलत',rsTitle:'खण्डअनुसार स्कोर',rdTitle:'उम्मेदवार जानकारी',rname:'नाम',rdate:'मिति',rtime:'समय',retry:'फेरि प्रयास',pass:'उत्तीर्ण',fail:'अनुत्तीर्ण',nameerr:'कृपया आफ्नो नाम लेख्नुहोस्'},
+};
+
+// Symbol substitution lookup
+const NUM_MAP = {4:'D',0:'P',1:'Y',6:'S',9:'K',7:'I',2:'C',8:'B',3:'M',5:'J'};
+// Reverse: letter from digit
+function digit2letter(d){ return NUM_MAP[parseInt(d)] || '?'; }
+function num2code(n){ return String(n).split('').map(d=>digit2letter(d)).join(''); }
+
+// Q2 data
+const Q2_DATA = [
+ {num:'649', choices:['YIJ','SDK','YCI','SJM','YBI'], ans:1},
+ {num:'382', choices:['DKC','MIP','BKJ','PSJ','MBC'], ans:4},
+ {num:'154', choices:['CPD','CBM','YJD','KIJ','KIB'], ans:2},
+ {num:'278', choices:['IPK','CPB','IYD','CIB','JSD'], ans:3},
+ {num:'931', choices:['KMY','JID','BCD','KDP','JYJ'], ans:0},
+ {num:'602', choices:['SPM','YBI','SMI','YBJ','SPC'], ans:4},
+ {num:'570', choices:['PKD','PSC','JIP','BDC','JSD'], ans:2},
+ {num:'497', choices:['ICP','DKB','MYP','DKI','MYC'], ans:3},
+ {num:'723', choices:['CPJ','ICM','IDJ','DJS','CSJ'], ans:1},
+ {num:'215', choices:['CYJ','CBK','JIP','CDM','JBY'], ans:0},
+];
+
+// Q3 shapes as SVG drawing functions
+// Each returns array of 6 SVG strings [original, opt1..5], correct index
+const Q3_DATA = [
+ // Q3-1: 2x2 grid with thick right/bottom lines → answer 4
+ {
+  answer: 4,
+  shapes: [
+   drawGrid2x2('rb'), // original: thick right+bottom
+   drawGrid2x2('rb'), // 1: same
+   drawGrid2x2('lb'), // 2: thick left+bottom
+   drawGrid2x2('rt'), // 3: thick right+top
+   drawGrid2x2('lt'), // 4: thick left+top ← rotated version
+   drawGrid2x2('tb'), // 5: thick top+bottom
+  ]
+ },
+ // Q3-2: 2x2 with thick top+right → answer 2
+ {
+  answer: 2,
+  shapes: [
+   drawGrid2x2('tr'),
+   drawGrid2x2('tl'),
+   drawGrid2x2('bl'),
+   drawGrid2x2('br'),
+   drawGrid2x2('tr'),
+   drawGrid2x2('tl'),
+  ]
+ },
+ // Q3-3: 2x2 with thick left+top → answer 5
+ {
+  answer: 5,
+  shapes: [
+   drawGrid2x2('lt'),
+   drawGrid2x2('tb'),
+   drawGrid2x2('lt'),
+   drawGrid2x2('rt'),
+   drawGrid2x2('lb'),
+   drawGrid2x2('rb'),
+  ]
+ },
+ // Q3-4: X pattern inside 2x2 → answer 4
+ {
+  answer: 4,
+  shapes: [
+   drawXGrid('tl'),
+   drawXGrid('tr'),
+   drawXGrid('all'),
+   drawXGrid('tb'),
+   drawXGrid('tl'),
+   drawXGrid('half'),
+  ]
+ },
+ // Q3-5: triangle position → answer 3
+ {
+  answer: 3,
+  shapes: [
+   drawTriGrid('bl'),
+   drawTriGrid('tl'),
+   drawTriGrid('tr'),
+   drawTriGrid('br'),
+   drawTriGrid('bl'),
+   drawTriGrid('tl'),
+  ]
+ },
+ // Q3-6: 2x2 with asymmetric thick lines → answer 5
+ {
+  answer: 5,
+  shapes: [
+   drawGrid2x2asym('v1'),
+   drawGrid2x2asym('v2'),
+   drawGrid2x2asym('v3'),
+   drawGrid2x2asym('v4'),
+   drawGrid2x2asym('v1'),
+   drawGrid2x2asym('v5'),
+  ]
+ },
+];
+
+function svgWrap(content, size=60){
+ return `<svg width="${size}" height="${size}" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg">${content}</svg>`;
+}
+
+function drawGrid2x2(thick){
+ // Draw a 2x2 grid with specified sides thickened (red/bold)
+ const s=8, e=52, m=30;
+ const thinStyle='stroke:#374151;stroke-width:1.5';
+ const thickStyle='stroke:#dc2626;stroke-width:3.5';
+ const lines = {
+  top:`<line x1="${s}" y1="${s}" x2="${e}" y2="${s}" style="${thick.includes('t')?thickStyle:thinStyle}"/>`,
+  bot:`<line x1="${s}" y1="${e}" x2="${e}" y2="${e}" style="${thick.includes('b')?thickStyle:thinStyle}"/>`,
+  lft:`<line x1="${s}" y1="${s}" x2="${s}" y2="${e}" style="${thick.includes('l')?thickStyle:thinStyle}"/>`,
+  rgt:`<line x1="${e}" y1="${s}" x2="${e}" y2="${e}" style="${thick.includes('r')?thickStyle:thinStyle}"/>`,
+  vmid:`<line x1="${m}" y1="${s}" x2="${m}" y2="${e}" style="${thinStyle}"/>`,
+  hmid:`<line x1="${s}" y1="${m}" x2="${e}" y2="${m}" style="${thinStyle}"/>`,
+ };
+ return svgWrap(Object.values(lines).join(''));
+}
+
+function drawGrid2x2asym(v){
+ const s=8,e=52,m=30,m2=38;
+ const thin='stroke:#374151;stroke-width:1.5';
+ const thick='stroke:#dc2626;stroke-width:3.5';
+ // Different asymmetric patterns
+ const patterns = {
+  v1:`<line x1="${s}" y1="${s}" x2="${e}" y2="${s}" style="${thin}"/><line x1="${s}" y1="${e}" x2="${e}" y2="${e}" style="${thin}"/><line x1="${s}" y1="${s}" x2="${s}" y2="${e}" style="${thin}"/><line x1="${e}" y1="${s}" x2="${e}" y2="${e}" style="${thin}"/><line x1="${m}" y1="${s}" x2="${m}" y2="${e}" style="${thick}"/><line x1="${s}" y1="${m2}" x2="${e}" y2="${m2}" style="${thick}"/>`,
+  v2:`<line x1="${s}" y1="${s}" x2="${e}" y2="${s}" style="${thin}"/><line x1="${s}" y1="${e}" x2="${e}" y2="${e}" style="${thin}"/><line x1="${s}" y1="${s}" x2="${s}" y2="${e}" style="${thin}"/><line x1="${e}" y1="${s}" x2="${e}" y2="${e}" style="${thin}"/><line x1="${m}" y1="${s}" x2="${m}" y2="${e}" style="${thick}"/><line x1="${s}" y1="${m-8}" x2="${e}" y2="${m-8}" style="${thick}"/>`,
+  v3:`<line x1="${s}" y1="${s}" x2="${e}" y2="${s}" style="${thin}"/><line x1="${s}" y1="${e}" x2="${e}" y2="${e}" style="${thin}"/><line x1="${s}" y1="${s}" x2="${s}" y2="${e}" style="${thin}"/><line x1="${e}" y1="${s}" x2="${e}" y2="${e}" style="${thin}"/><line x1="${m-8}" y1="${s}" x2="${m-8}" y2="${e}" style="${thick}"/><line x1="${s}" y1="${m}" x2="${e}" y2="${m}" style="${thick}"/>`,
+  v4:`<line x1="${s}" y1="${s}" x2="${e}" y2="${s}" style="${thin}"/><line x1="${s}" y1="${e}" x2="${e}" y2="${e}" style="${thin}"/><line x1="${s}" y1="${s}" x2="${s}" y2="${e}" style="${thin}"/><line x1="${e}" y1="${s}" x2="${e}" y2="${e}" style="${thin}"/><line x1="${m+8}" y1="${s}" x2="${m+8}" y2="${e}" style="${thick}"/><line x1="${s}" y1="${m}" x2="${e}" y2="${m}" style="${thick}"/>`,
+  v5:`<line x1="${s}" y1="${s}" x2="${e}" y2="${s}" style="${thin}"/><line x1="${s}" y1="${e}" x2="${e}" y2="${e}" style="${thin}"/><line x1="${s}" y1="${s}" x2="${s}" y2="${e}" style="${thin}"/><line x1="${e}" y1="${s}" x2="${e}" y2="${e}" style="${thin}"/><line x1="${m}" y1="${s}" x2="${m}" y2="${e}" style="${thick}"/><line x1="${s}" y1="${m2}" x2="${e}" y2="${m2}" style="${thick}"/>`,
+ };
+ return svgWrap(patterns[v]||patterns.v1);
+}
+
+function drawXGrid(v){
+ const s=8,e=52,m=30;
+ const thin='stroke:#374151;stroke-width:1.5';
+ const thick='stroke:#dc2626;stroke-width:3';
+ const box=`<line x1="${s}" y1="${s}" x2="${e}" y2="${s}" style="${thin}"/><line x1="${s}" y1="${e}" x2="${e}" y2="${e}" style="${thin}"/><line x1="${s}" y1="${s}" x2="${s}" y2="${e}" style="${thin}"/><line x1="${e}" y1="${s}" x2="${e}" y2="${e}" style="${thin}"/><line x1="${m}" y1="${s}" x2="${m}" y2="${e}" style="${thin}"/><line x1="${s}" y1="${m}" x2="${e}" y2="${m}" style="${thin}"/>`;
+ const xmap = {
+  tl:`<line x1="${s}" y1="${s}" x2="${m}" y2="${m}" style="${thick}"/><line x1="${m}" y1="${s}" x2="${s}" y2="${m}" style="${thick}"/>`,
+  tr:`<line x1="${m}" y1="${s}" x2="${e}" y2="${m}" style="${thick}"/><line x1="${e}" y1="${s}" x2="${m}" y2="${m}" style="${thick}"/>`,
+  all:`<line x1="${s}" y1="${s}" x2="${e}" y2="${e}" style="${thick}"/><line x1="${e}" y1="${s}" x2="${s}" y2="${e}" style="${thick}"/>`,
+  tb:`<line x1="${s}" y1="${s}" x2="${m}" y2="${m}" style="${thick}"/><line x1="${m}" y1="${m}" x2="${e}" y2="${e}" style="${thick}"/>`,
+  half:`<line x1="${s}" y1="${s}" x2="${e}" y2="${m}" style="${thick}"/><line x1="${e}" y1="${s}" x2="${s}" y2="${m}" style="${thick}"/>`,
+ };
+ return svgWrap(box+(xmap[v]||xmap.tl));
+}
+
+function drawTriGrid(pos){
+ const s=8,e=52,m=30;
+ const thin='stroke:#374151;stroke-width:1.5';
+ const box=`<rect x="${s}" y="${s}" width="${e-s}" height="${e-s}" fill="none" stroke="#374151" stroke-width="1.5"/><line x1="${m}" y1="${s}" x2="${m}" y2="${e}" style="${thin}"/><line x1="${s}" y1="${m}" x2="${e}" y2="${m}" style="${thin}"/>`;
+ const triMap = {
+  bl:`<polygon points="${s+2},${e-2} ${m-2},${e-2} ${s+2},${m+2}" fill="#1e3a8a"/>`,
+  tl:`<polygon points="${s+2},${s+2} ${m-2},${s+2} ${s+2},${m-2}" fill="#1e3a8a"/>`,
+  tr:`<polygon points="${m+2},${s+2} ${e-2},${s+2} ${e-2},${m-2}" fill="#1e3a8a"/>`,
+  br:`<polygon points="${m+2},${e-2} ${e-2},${e-2} ${e-2},${m+2}" fill="#1e3a8a"/>`,
+ };
+ return svgWrap(box+(triMap[pos]||triMap.bl));
+}
+
+// Q4 block counts
+const Q4_DATA = [
+ {count:20, img:'block1'},
+ {count:28, img:'block2'},
+ {count:19, img:'block3'},
+ {count:24, img:'block4'},
+];
+
+// All Q1 arithmetic
+const Q1_DATA = [
+ // Simple (1-10)
+ {expr:'53 + 22 =', ans:75},{expr:'13 + 69 =', ans:82},{expr:'11 + 36 =', ans:47},
+ {expr:'42 + 29 =', ans:71},{expr:'29 + 87 =', ans:116},{expr:'68 − 65 =', ans:3},
+ {expr:'71 − 33 =', ans:38},{expr:'63 − 55 =', ans:8},{expr:'91 − 18 =', ans:73},
+ {expr:'82 − 64 =', ans:18},
+ // Medium multiplication/division (11-20)
+ {expr:'7 × 8 =', ans:56},{expr:'11 × 12 =', ans:132},{expr:'46 × 7 =', ans:322},
+ {expr:'15 × 6 =', ans:90},{expr:'23 × 18 =', ans:414},{expr:'72 ÷ 9 =', ans:8},
+ {expr:'65 ÷ 5 =', ans:13},{expr:'57 ÷ 3 =', ans:19},{expr:'312 ÷ 12 =', ans:26},
+ {expr:'728 ÷ 56 =', ans:13},
+ // Complex (21-30)
+ {expr:'35÷7×5+8−29 =', ans:4},{expr:'12+19−60÷15×7 =', ans:3},
+ {expr:'4×15÷5−17+10 =', ans:5},{expr:'55÷11−36+4×8 =', ans:1},
+ {expr:'9−10+18×3÷9 =', ans:5},{expr:'5−4+12×3÷9 =', ans:5},
+ {expr:'3+2×1−34÷17 =', ans:3},{expr:'4×3−80÷5+5 =', ans:1},
+ {expr:'36÷9×18+20−91 =', ans:1},{expr:'9+19−66÷22×8 =', ans:4},
+];
+
+// State
+let curLang = 'ja';
+let candName = '';
+let answers = {};
+let timerInterval = null;
+let startTime = null;
+let timeLeft = 20 * 60;
+
+function ss(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active')}
+function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('on');setTimeout(()=>t.classList.remove('on'),2500)}
+
+// Build lang grid
+function buildLangGrid(){
+ const g=document.getElementById('lang-grid');
+ g.innerHTML=LANGS.map(l=>`<button class="lang-btn${curLang===l.k?' sel':''}" onclick="selLang('${l.k}')"><div class="ln">${l.name}</div><div class="ls">${l.nat}</div></button>`).join('');
+}
+function selLang(k){curLang=k;buildLangGrid();document.getElementById('lang-next').disabled=false}
+function goLang(){ss('lang-screen');buildLangGrid()}
+function goInfo(){
+ const u=UI[curLang]||UI.ja;
+ document.getElementById('info-title').textContent=u.title;
+ document.getElementById('info-sub').textContent=u.sub;
+ document.getElementById('s1-info').textContent=u.s1;
+ document.getElementById('s1-sub').textContent=u.s1s;
+ document.getElementById('s2-info').textContent=u.s2;
+ document.getElementById('s2-sub').textContent=u.s2s;
+ document.getElementById('s3-info').textContent=u.s3;
+ document.getElementById('s3-sub').textContent=u.s3s;
+ document.getElementById('s4-info').textContent=u.s4;
+ document.getElementById('s4-sub').textContent=u.s4s;
+ document.getElementById('time-info').textContent=u.tm;
+ document.getElementById('time-sub').textContent=u.tms;
+ document.getElementById('name-lbl').textContent=u.nl;
+ document.getElementById('start-btn').textContent=u.start;
+ document.getElementById('cand-name').placeholder=u.nl;
+ ss('info-screen');
+}
+function startTest(){
+ const u=UI[curLang]||UI.ja;
+ const n=document.getElementById('cand-name').value.trim();
+ if(!n){const e=document.getElementById('info-err');e.textContent=u.nameerr;e.classList.add('on');return}
+ candName=n; answers={}; timeLeft=20*60; startTime=new Date();
+ buildTest();
+ ss('test-screen');
+ startTimer();
+}
+
+function startTimer(){
+ if(timerInterval)clearInterval(timerInterval);
+ updateTimerDisplay();
+ timerInterval=setInterval(()=>{
+  timeLeft--;
+  updateTimerDisplay();
+  if(timeLeft<=0){clearInterval(timerInterval);submitTest()}
+ },1000);
+}
+function updateTimerDisplay(){
+ const m=Math.floor(timeLeft/60),s=timeLeft%60;
+ const el=document.getElementById('timer');
+ el.textContent=`${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+ el.classList.toggle('warn',timeLeft<=120);
+}
+
+function buildTest(){
+ const u=UI[curLang]||UI.ja;
+ document.getElementById('t-title').textContent=u.title;
+ let html='';
+ // Section 1
+ html+=`<div class="section-hdr"><div class="sec-num">設問 1 / SECTION 1</div><div class="sec-title">${u.q1h}</div><div class="sec-sub">${u.q1s}</div></div>`;
+ Q1_DATA.forEach((q,i)=>{
+  html+=`<div class="q-card" id="qc1-${i}"><div class="q-num-lbl">(${i+1})</div><div class="q-expr">${q.expr}</div><input type="number" class="q-input" id="q1-${i}" placeholder="?" oninput="setQ1(${i},this.value)" inputmode="numeric"></div>`;
+ });
+ // Section 2
+ html+=`<div class="section-hdr" style="margin-top:1.5rem"><div class="sec-num">設問 2 / SECTION 2</div><div class="sec-title">${u.q2h}</div><div class="sec-sub">${u.q2s}</div></div>`;
+ // Guide table
+ html+=`<div class="q-card"><div class="q-num-lbl">${u.guide}</div>
+  <table class="sym-tbl"><tr class="head-row"><td>4</td><td>0</td><td>1</td><td>6</td><td>9</td><td style="background:#4b5563">D</td><td style="background:#4b5563">P</td><td style="background:#4b5563">Y</td><td style="background:#4b5563">S</td><td style="background:#4b5563">K</td></tr>
+  <tr><td>7</td><td>2</td><td>8</td><td>3</td><td>5</td><td>I</td><td>C</td><td>B</td><td>M</td><td>J</td></tr></table>
+  <div style="margin-top:.75rem;font-size:12px;color:var(--muted)">${u.ex} 251 → <strong>MYD</strong> / SKP / CJY / CBY / <u>KSY</u> → 答: 3</div></div>`;
+ Q2_DATA.forEach((q,i)=>{
+  html+=`<div class="q-card" id="qc2-${i}"><div class="q-num-lbl">(${i+1})</div>
+   <div class="sym-q">${q.num}</div>
+   <div class="sym-wrap"><table class="sym-tbl"><tr class="head-row"><td>4</td><td>0</td><td>1</td><td>6</td><td>9</td><td style="background:#4b5563">D</td><td style="background:#4b5563">P</td><td style="background:#4b5563">Y</td><td style="background:#4b5563">S</td><td style="background:#4b5563">K</td></tr><tr><td>7</td><td>2</td><td>8</td><td>3</td><td>5</td><td>I</td><td>C</td><td>B</td><td>M</td><td>J</td></tr></table></div>
+   <div class="choices">${q.choices.map((c,ci)=>`<div class="choice" id="ch2-${i}-${ci}" onclick="setQ2(${i},${ci})"><div class="choice-dot"></div><span>${ci+1}. ${c}</span></div>`).join('')}</div></div>`;
+ });
+ // Section 3
+ html+=`<div class="section-hdr" style="margin-top:1.5rem"><div class="sec-num">設問 3 / SECTION 3</div><div class="sec-title">${u.q3h}</div><div class="sec-sub">${u.q3s}</div></div>`;
+ Q3_DATA.forEach((q,i)=>{
+  html+=`<div class="q-card" id="qc3-${i}"><div class="q-num-lbl">(${i+1})</div>
+   <div class="shape-wrap">
+    <div class="shape-item">${q.shapes[0]}<div class="shape-lbl">▶</div></div>
+    <div class="shape-divider">|</div>
+    ${[1,2,3,4,5].map(n=>`<div class="shape-item">${q.shapes[n]}<div class="shape-lbl">${n}</div></div>`).join('')}
+   </div>
+   <div class="choices">${[1,2,3,4,5].map((n,ci)=>`<div class="choice" id="ch3-${i}-${ci}" onclick="setQ3(${i},${ci})"><div class="choice-dot"></div><span>${n}</span></div>`).join('')}</div></div>`;
+ });
+ // Section 4
+ html+=`<div class="section-hdr" style="margin-top:1.5rem"><div class="sec-num">設問 4 / SECTION 4</div><div class="sec-title">${u.q4h}</div><div class="sec-sub">${u.q4s}</div></div>`;
+ Q4_DATA.forEach((q,i)=>{
+  html+=`<div class="q-card" id="qc4-${i}"><div class="q-num-lbl">(${i+1})</div>
+   <div style="text-align:center;margin-bottom:.75rem">${drawBlock(i)}</div>
+   <input type="number" class="q-input" id="q4-${i}" placeholder="?" oninput="setQ4(${i},this.value)" inputmode="numeric"></div>`;
+ });
+ // Submit
+ html+=`<div style="margin-top:1.5rem"><button onclick="submitTest()" style="width:100%;padding:14px;border:none;border-radius:12px;background:#16a34a;color:#fff;font-size:16px;font-weight:700;cursor:pointer;font-family:inherit">提出 / Submit ✓</button></div>`;
+ document.getElementById('t-body').innerHTML=html;
+ updateProgress();
+}
+
+function drawBlock(idx){
+ // SVG 3D block drawings for each question
+ const blocks=[drawBlock1(),drawBlock2(),drawBlock3(),drawBlock4()];
+ return blocks[idx]||drawBlock1();
+}
+
+function drawBlock1(){
+ // Block arrangement: answer=20, staircase shape
+ return `<svg width="200" height="160" viewBox="0 0 200 160" xmlns="http://www.w3.org/2000/svg">
+  ${block3D(20,80,4,3,1,'#93c5fd','#3b82f6','#1d4ed8')}
+  ${block3D(60,80,4,2,1,'#93c5fd','#3b82f6','#1d4ed8')}
+  ${block3D(100,80,4,1,1,'#93c5fd','#3b82f6','#1d4ed8')}
+  ${block3D(140,80,1,1,1,'#93c5fd','#3b82f6','#1d4ed8')}
+ </svg>`;
+}
+function drawBlock2(){
+ return `<svg width="200" height="160" viewBox="0 0 200 160" xmlns="http://www.w3.org/2000/svg">
+  ${block3D(20,90,4,4,1,'#86efac','#22c55e','#15803d')}
+  ${block3D(60,90,4,3,1,'#86efac','#22c55e','#15803d')}
+  ${block3D(100,90,4,2,1,'#86efac','#22c55e','#15803d')}
+  ${block3D(140,90,4,1,1,'#86efac','#22c55e','#15803d')}
+ </svg>`;
+}
+function drawBlock3(){
+ return `<svg width="200" height="160" viewBox="0 0 200 160" xmlns="http://www.w3.org/2000/svg">
+  ${block3D(20,80,3,3,1,'#fca5a5','#ef4444','#b91c1c')}
+  ${block3D(60,80,3,2,1,'#fca5a5','#ef4444','#b91c1c')}
+  ${block3D(100,80,3,1,1,'#fca5a5','#ef4444','#b91c1c')}
+  ${block3D(140,80,2,1,1,'#fca5a5','#ef4444','#b91c1c')}
+ </svg>`;
+}
+function drawBlock4(){
+ return `<svg width="200" height="160" viewBox="0 0 200 160" xmlns="http://www.w3.org/2000/svg">
+  ${block3D(20,90,4,3,1,'#d8b4fe','#a855f7','#7e22ce')}
+  ${block3D(60,90,4,2,1,'#d8b4fe','#a855f7','#7e22ce')}
+  ${block3D(100,90,2,2,1,'#d8b4fe','#a855f7','#7e22ce')}
+  ${block3D(140,90,2,1,1,'#d8b4fe','#a855f7','#7e22ce')}
+ </svg>`;
+}
+
+function block3D(x, y, h, stackH, w, topC, sideC, darkC){
+ // Draw a stack of blocks at position x,y with given height
+ const bw=32, bh=18, skew=8;
+ let svg='';
+ for(let r=0;r<stackH;r++){
+  const by=y-r*bh;
+  // top face
+  svg+=`<polygon points="${x},${by} ${x+bw},${by} ${x+bw+skew},${by-skew} ${x+skew},${by-skew}" fill="${topC}" stroke="#fff" stroke-width="0.5"/>`;
+  // front face
+  if(r===0||true){
+   svg+=`<rect x="${x}" y="${by}" width="${bw}" height="${bh}" fill="${sideC}" stroke="#fff" stroke-width="0.5"/>`;
+  }
+  // right face
+  svg+=`<polygon points="${x+bw},${by} ${x+bw+skew},${by-skew} ${x+bw+skew},${by-skew+bh} ${x+bw},${by+bh}" fill="${darkC}" stroke="#fff" stroke-width="0.5"/>`;
+ }
+ return svg;
+}
+
+// Answer tracking
+function setQ1(i,v){answers[`q1_${i}`]=v;document.getElementById(`qc1-${i}`).classList.toggle('answered',v!=='');updateProgress()}
+function setQ2(i,ci){
+ answers[`q2_${i}`]=ci;
+ for(let x=0;x<5;x++)document.getElementById(`ch2-${i}-${x}`)?.classList.remove('sel');
+ document.getElementById(`ch2-${i}-${ci}`)?.classList.add('sel');
+ document.getElementById(`qc2-${i}`).classList.add('answered');
+ updateProgress();
+}
+function setQ3(i,ci){
+ answers[`q3_${i}`]=ci;
+ for(let x=0;x<5;x++)document.getElementById(`ch3-${i}-${x}`)?.classList.remove('sel');
+ document.getElementById(`ch3-${i}-${ci}`)?.classList.add('sel');
+ document.getElementById(`qc3-${i}`).classList.add('answered');
+ updateProgress();
+}
+function setQ4(i,v){answers[`q4_${i}`]=v;document.getElementById(`qc4-${i}`).classList.toggle('answered',v!=='');updateProgress()}
+
+function updateProgress(){
+ const total=50;
+ const done=Object.keys(answers).filter(k=>answers[k]!==''&&answers[k]!==undefined&&answers[k]!==null).length;
+ document.getElementById('t-prg-fill').style.width=(done/total*100)+'%';
+}
+
+
+// ── Google Sheets Sync ──
+const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbxZsXT9pRy7cakPXcmj6GcQiMpMVYRycTkHD0TNVZIfyWs_HBb-zE2v2u7DDKGLnlip2g/exec';
+
+async function saveToSheets(data) {
+  try {
+    await fetch(SHEETS_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify(data)
+    });
+  } catch(e) {
+    console.log('Sheets sync error:', e);
+  }
+}
+
+function submitTest(){
+ if(timerInterval)clearInterval(timerInterval);
+ const elapsed=Math.floor((new Date()-startTime)/1000);
+ const u=UI[curLang]||UI.ja;
+ // Score Q1
+ let s1=0;
+ Q1_DATA.forEach((q,i)=>{if(parseInt(answers[`q1_${i}`])===q.ans)s1++});
+ // Score Q2
+ let s2=0;
+ Q2_DATA.forEach((q,i)=>{if(answers[`q2_${i}`]===q.ans)s2++});
+ // Score Q3
+ let s3=0;
+ Q3_DATA.forEach((q,i)=>{if(answers[`q3_${i}`]===(q.answer-1))s3++});
+ // Score Q4
+ let s4=0;
+ Q4_DATA.forEach((q,i)=>{if(parseInt(answers[`q4_${i}`])===q.count)s4++});
+ const total=s1+s2+s3+s4;
+ const pct=Math.round(total/50*100);
+ const pass=pct>=70;
+ // Ring
+ const arc=document.getElementById('r-arc');
+ const circ=289;
+ arc.setAttribute('stroke-dashoffset',circ-(circ*pct/100));
+ arc.setAttribute('stroke',pass?'#86efac':'#fca5a5');
+ document.getElementById('r-pct').textContent=pct+'%';
+ document.getElementById('r-pts').textContent=total+'/50';
+ document.getElementById('r-msg').textContent=pass?u.pass:u.fail;
+ document.getElementById('r-sub').textContent=candName;
+ // Sections
+ const secs=[
+  {label:'設問1 算数',score:s1,total:30},
+  {label:'設問2 置き換え',score:s2,total:10},
+  {label:'設問3 図形',score:s3,total:6},
+  {label:'設問4 ブロック',score:s4,total:4},
+ ];
+ document.getElementById('r-sections').innerHTML=secs.map(s=>`
+  <div class="r-row">
+   <span>${s.label}</span>
+   <span style="font-weight:600;font-family:'DM Mono',monospace;color:${s.score/s.total>=0.7?'var(--green)':'var(--red)'}">${s.score}/${s.total}</span>
+  </div>`).join('');
+ document.getElementById('r-summary-title').textContent=u.rsTitle;
+ document.getElementById('r-detail-title').textContent=u.rdTitle;
+ document.getElementById('r-name-lbl').textContent=u.rname;
+ document.getElementById('r-name-val').textContent=candName;
+ document.getElementById('r-date-lbl').textContent=u.rdate;
+ document.getElementById('r-date-val').textContent=new Date().toLocaleString('ja-JP');
+ document.getElementById('r-time-lbl').textContent=u.rtime;
+ const em=Math.floor(elapsed/60),es=elapsed%60;
+ document.getElementById('r-time-val').textContent=`${em}分${es}秒`;
+ document.getElementById('retry-btn').textContent=u.retry;
+ // Save to Google Sheets
+ const elapsed2 = Math.floor((new Date() - startTime) / 1000);
+ const em2 = Math.floor(elapsed2/60), es2 = elapsed2%60;
+ saveToSheets({
+  name: candName,
+  language: curLang,
+  pct,
+  s1, s2, s3, s4,
+  timeTaken: em2 + 'min ' + es2 + 'sec'
+ });
+ // Save to localStorage
+ if(CUR_CO){
+  const sts = getStudents();
+  sts.push({name:candName, date:new Date().toISOString(), pct, total, s1, s2, s3, s4});
+  setStudents(sts);
+ }
+ ss('result-screen');
+}
+
+
+// ── Teacher System ──
+const normCo = s => s.trim().toLowerCase().replace(/\s+/g,'_');
+let CUR_CO = '';
+const tKey = k => CUR_CO ? CUR_CO+'_apt_'+k : 'apt_'+k;
+const getTPass = () => localStorage.getItem(tKey('pw')) || 'teacher2024';
+const getStudents = () => JSON.parse(localStorage.getItem(tKey('students')) || '[]');
+const setStudents = v => localStorage.setItem(tKey('students'), JSON.stringify(v));
+
+function tLogin(){
+ const co = document.getElementById('t-co-input').value.trim();
+ const pw = document.getElementById('t-pw-input').value;
+ if(!co){const e=document.getElementById('t-login-err');e.textContent='Company name を入力してください';e.classList.add('on');return}
+ CUR_CO = normCo(co);
+ if(pw !== getTPass()){const e=document.getElementById('t-login-err');e.textContent='Incorrect password';e.classList.add('on');return}
+ document.getElementById('t-co-display').textContent='🏢 '+co;
+ document.getElementById('share-url').textContent = window.location.href;
+ renderTeacher();
+ ss('teacher-screen');
+}
+function tLogout(){CUR_CO='';ss('lang-screen')}
+
+function tTab(name){
+ ['overview','students','settings'].forEach(t=>{
+  document.getElementById('ttab-'+t)?.classList.toggle('active',t===name);
+  document.getElementById('tp-'+t).style.display = t===name ? 'block' : 'none';
+ });
+}
+
+function renderTeacher(){
+ const sts = getStudents();
+ const pass = sts.filter(s=>s.pct>=70).length;
+ document.getElementById('ov-total').textContent = sts.length;
+ document.getElementById('ov-pass').textContent = pass;
+ document.getElementById('ov-fail').textContent = sts.length - pass;
+ if(sts.length){
+  const avgs = sts.map(s=>s.pct);
+  document.getElementById('ov-avg').textContent = Math.round(avgs.reduce((a,b)=>a+b,0)/avgs.length)+'%';
+  document.getElementById('ov-high').textContent = Math.max(...avgs)+'%';
+  // Section avgs
+  const sa = ['s1','s2','s3','s4'].map(k=>({
+   key:k,
+   avg: Math.round(sts.reduce((a,s)=>a+(s[k]||0),0)/sts.length*10)/10,
+   total: k==='s1'?30:k==='s2'?10:k==='s3'?6:4
+  }));
+  document.getElementById('sec-avgs').innerHTML = sa.map(s=>`
+   <div style="display:flex;justify-content:space-between;align-items:center;padding:.4rem 0;border-bottom:1px solid var(--bdr);font-size:13px">
+    <span>${s.key==='s1'?'設問1 算数':s.key==='s2'?'設問2 置き換え':s.key==='s3'?'設問3 図形':'設問4 ブロック'}</span>
+    <span style="font-family:'DM Mono',monospace;font-weight:600">${s.avg}/${s.total}</span>
+   </div>`).join('');
+ } else {
+  document.getElementById('ov-avg').textContent = '-';
+  document.getElementById('ov-high').textContent = '-';
+  document.getElementById('sec-avgs').innerHTML = '<p style="color:var(--muted);font-size:13px">No data yet</p>';
+ }
+ // Recent
+ const recent = [...sts].sort((a,b)=>new Date(b.date)-new Date(a.date)).slice(0,5);
+ document.getElementById('ov-recent').innerHTML = recent.length ? recent.map(sRow).join('') : '<p style="color:var(--muted);font-size:13px">No students yet</p>';
+ // All students
+ document.getElementById('all-students').innerHTML = sts.length ? [...sts].sort((a,b)=>new Date(b.date)-new Date(a.date)).map(sRow).join('') : '<p style="color:var(--muted);font-size:13px">No students yet</p>';
+}
+
+function sRow(s){
+ const p = s.pct >= 70;
+ const init = (s.name||'?').split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+ const dt = s.date ? new Date(s.date).toLocaleString('ja-JP') : '';
+ return `<div style="display:flex;align-items:center;gap:9px;padding:.625rem 0;border-bottom:1px solid var(--bdr)">
+  <div style="width:34px;height:34px;border-radius:50%;background:#eff6ff;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;color:#1e40af;flex-shrink:0">${init}</div>
+  <div style="flex:1;min-width:0">
+   <div style="font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${s.name}</div>
+   <div style="font-size:11px;color:var(--muted)">${dt}</div>
+  </div>
+  <div style="text-align:right;flex-shrink:0">
+   <div style="font-family:'DM Mono',monospace;font-size:14px;font-weight:600;color:${p?'#16a34a':'#dc2626'}">${s.pct}%</div>
+   <span style="display:inline-block;padding:2px 7px;border-radius:99px;font-size:10px;font-weight:600;background:${p?'#f0fdf4':'#fef2f2'};color:${p?'#16a34a':'#dc2626'}">${p?'Pass':'Fail'}</span>
+  </div>
+ </div>`;
+}
+
+function changePw(){
+ const p = document.getElementById('new-pw').value.trim();
+ if(!p||p.length<4){toast('≥ 4 chars required');return}
+ localStorage.setItem(tKey('pw'),p);
+ document.getElementById('new-pw').value='';
+ toast('Password saved ✓');
+}
+function clearAll(){
+ if(!confirm('Delete all student data?'))return;
+ setStudents([]);renderTeacher();toast('Cleared');
+}
+function openEmailModal(){
+ const sts = getStudents();
+ document.getElementById('modal-title').textContent = '📋 Student Details — '+ (CUR_CO||'');
+ document.getElementById('detail-tbody').innerHTML = sts.map(s=>`
+  <tr style="border-bottom:1px solid var(--bdr)">
+   <td style="padding:6px 0;font-size:12px">${s.name}</td>
+   <td style="text-align:center;font-size:12px;font-weight:600;color:${s.pct>=70?'#16a34a':'#dc2626'}">${s.pct}%</td>
+   <td style="text-align:center;font-size:12px">${s.s1||0}/30</td>
+   <td style="text-align:center;font-size:12px">${s.s2||0}/10</td>
+   <td style="text-align:center;font-size:12px">${s.s3||0}/6</td>
+   <td style="text-align:center;font-size:12px">${s.s4||0}/4</td>
+  </tr>`).join('') || '<tr><td colspan="6" style="color:var(--muted);font-size:12px;padding:8px 0">No data</td></tr>';
+ document.getElementById('detail-modal').style.display = 'flex';
+}
+function closeEmailModal(){document.getElementById('detail-modal').style.display='none'}
+function expCSV(){
+ const sts = getStudents();
+ let csv = 'Name,Date,Total%,算数/30,置換/10,図形/6,ブロック/4,Pass/Fail\n';
+ sts.forEach(s=>{csv+=`"${s.name}","${s.date}",${s.pct}%,${s.s1||0},${s.s2||0},${s.s3||0},${s.s4||0},${s.pct>=70?'Pass':'Fail'}\n`});
+ const a=document.createElement('a');a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);
+ a.download=(CUR_CO||'aptitude')+'_results.csv';a.click();
+}
+function cpUrl(){navigator.clipboard&&navigator.clipboard.writeText(window.location.href).then(()=>toast('Copied! ✓'))}
+function shareWA(){window.open('https://wa.me/?text='+encodeURIComponent('Test: '+window.location.href),'_blank')}
+function shareTG(){window.open('https://t.me/share/url?url='+encodeURIComponent(window.location.href),'_blank')}
+
+// Init
+buildLangGrid();
+</script>
+</body>
+</html>
